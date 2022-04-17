@@ -51,55 +51,47 @@ class Player {
   }
 
   updateInputs() {
-    if(keys.right.pressed && keys.lastKey === 'd')
+    this.velocity.x = 0, this.velocity.y = 0;
+
+    if(lastKey === 'd')
       this.velocity.x = 5;
-    else if(keys.left.pressed && keys.lastKey === 'a') 
+    else if(lastKey === 'a') 
       this.velocity.x = -5;
-    else if(keys.bottom.pressed && keys.lastKey === 's')
+    else if(lastKey === 's')
       this.velocity.y = 5;
-    else if(keys.top.pressed && keys.lastKey === 'w') 
+    else if(lastKey === 'w') 
       this.velocity.y = -5;
+  }
+
+  move() {
+    this.position.x += this.velocity.x;
+    this.position.y += this.velocity.y;
   }
 
   update() {
     this.draw();
+    this.move();
     this.updateInputs();
-    this.position.x += this.velocity.x;
-    this.position.y += this.velocity.y;
   }
 }
-const boundaries = [];
 
+
+const boundaries = [];
 const player = new Player(
   position = {
     x: Boundarie.width + Boundarie.width / 2,
     y: Boundarie.height + Boundarie.height / 2
   }
 );
-
-const keys = {
-  right: {
-    pressed: false
-  },
-  left: {
-    pressed: false
-  },
-  bottom: {
-    pressed: false
-  },
-  top: {
-    pressed: false
-  },
-  lastKey: null
-};
+var lastKey = null;
 
 function createMap() {
   const map = [
-    ['+','+','+','+','+','+'],
-    ['+','-','-','-','-','+'], 
-    ['+','-','+','+','-','+'],
-    ['+','-','-','-','-','+'],
-    ['+','+','+','+','+','+'],
+    ['+','+','+','+','+','+','+','+','+','+','+','+'],
+    ['+','-','-','-','-','-','-','-','-','-','-','+'], 
+    ['+','-','+','+','+','+','+','+','+','+','-','+'],
+    ['+','-','-','-','-','-','-','-','-','-','-','+'],
+    ['+','+','+','+','+','+','+','+','+','+','+','+']
   ];
 
   map.forEach((row,i) => {
@@ -118,26 +110,37 @@ function createMap() {
   });
 };
 
+function colission(boundarie) {
+  if(player.position.x + player.r + player.velocity.x 
+    >= 
+    boundarie.position.x &&
+    player.position.x - player.r + player.velocity.x 
+    <=
+    boundarie.position.x + boundarie.width &&
+    player.position.y + player.r + player.velocity.y 
+    >= 
+    boundarie.position.y &&
+    player.position.y - player.r + player.velocity.y
+    <= 
+    boundarie.position.y + boundarie.height) {
+
+      player.velocity.x = 0, player.velocity.y = 0;
+    }  
+};
+
 function run() {
-  c.clearRect(0,0,canvas.width, canvas.height);
-  boundaries.forEach((boundarie) => boundarie.draw());
-  player.update();
   requestAnimationFrame(run);
+  c.clearRect(0,0,canvas.width, canvas.height);
+  boundaries.forEach((boundarie) => {
+    boundarie.draw();
+    colission(boundarie);
+  });
+  player.update();
 }
 
 function addInputEvents() {
-  addEventListener('keydown', ({ key }) => {
-    keys.lastKey = key;
-    if(key === 'd') keys.right.pressed = true;
-    else if(key === 'a') keys.left.pressed = true;
-    else if(key === 'w') keys.top.pressed = true;
-    else if(key === 's') keys.bottom.pressed = true;
-  });
-  addEventListener('keyUp', ({ key }) => {
-    if(key === 'd') keys.right.pressed = false;
-    else if(key === 'a') keys.left.pressed = false;
-    else if(key === 'w') keys.top.pressed = false;
-    else if(key === 's') keys.bottom.pressed = false;
+  addEventListener('keypress', ({ key }) => {
+    lastKey = key;
   });
 };
 
