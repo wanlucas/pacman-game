@@ -4,7 +4,7 @@ const c = canvas.getContext('2d');
 const width = canvas.width = innerWidth;
 const height = canvas.height = innerHeight;
 
-class Boundarie {
+class Wall {
   static width = 60;
   static height = 60;
   constructor(position) {
@@ -36,7 +36,7 @@ class Player {
       x:0,
       y:0
     }
-    this.r = (Boundarie.width / 2) - 5
+    this.r = (Wall.width / 2) - 5;
   }
 
   draw() {
@@ -51,16 +51,21 @@ class Player {
   }
 
   updateInputs() {
-    this.velocity.x = 0, this.velocity.y = 0;
-
-    if(lastKey === 'd')
+    if(lastKey === 'd') {
       this.velocity.x = 5;
-    else if(lastKey === 'a') 
+      if(collidesWithTheWall(player)) this.velocity.x = 0; 
+    }
+    else if(lastKey === 'a') {
       this.velocity.x = -5;
-    else if(lastKey === 's')
+      if(collidesWithTheWall(player)) this.velocity.x = 0;
+    }
+    else if(lastKey === 's') {
       this.velocity.y = 5;
+      if(collidesWithTheWall(player)) this.velocity.y = 0;
+    }
     else if(lastKey === 'w') 
       this.velocity.y = -5;
+      if(collidesWithTheWall(player)) this.velocity.y = 0;
   }
 
   move() {
@@ -70,17 +75,16 @@ class Player {
 
   update() {
     this.draw();
-    this.move();
     this.updateInputs();
+    this.move();
   }
 }
 
-
-const boundaries = [];
+const walls = [];
 const player = new Player(
   position = {
-    x: Boundarie.width + Boundarie.width / 2,
-    y: Boundarie.height + Boundarie.height / 2
+    x: Wall.width + Wall.width / 2,
+    y: Wall.height + Wall.height / 2
   }
 );
 var lastKey = null;
@@ -97,11 +101,11 @@ function createMap() {
   map.forEach((row,i) => {
     row.forEach((block, i2) => {
       if(block === '+') {
-        boundaries.push(
-          new Boundarie(
+        walls.push(
+          new Wall(
             position = {
-              x: Boundarie.width * i2,
-              y: Boundarie.height * i
+              x: Wall.width * i2,
+              y: Wall.height * i
             }
           )
         )
@@ -110,31 +114,25 @@ function createMap() {
   });
 };
 
-function colission(boundarie) {
-  if(player.position.x + player.r + player.velocity.x 
-    >= 
-    boundarie.position.x &&
-    player.position.x - player.r + player.velocity.x 
-    <=
-    boundarie.position.x + boundarie.width &&
-    player.position.y + player.r + player.velocity.y 
-    >= 
-    boundarie.position.y &&
-    player.position.y - player.r + player.velocity.y
-    <= 
-    boundarie.position.y + boundarie.height) {
-
-      player.velocity.x = 0, player.velocity.y = 0;
-    }  
+function collidesWithTheWall(circle) {
+  return walls.some(wall => 
+    circle.position.x + circle.r + circle.velocity.x 
+    >= wall.position.x &&
+    circle.position.x - circle.r + circle.velocity.x 
+    <= wall.position.x + wall.width &&
+    circle.position.y + circle.r + circle.velocity.y 
+    >= wall.position.y &&
+    circle.position.y - circle.r + circle.velocity.y
+    <= wall.position.y + wall.height);     
 };
 
 function run() {
   requestAnimationFrame(run);
   c.clearRect(0,0,canvas.width, canvas.height);
-  boundaries.forEach((boundarie) => {
-    boundarie.draw();
-    colission(boundarie);
-  });
+
+  walls.forEach((wall) => wall.draw());
+  if(collidesWithTheWall(player))
+    player.velocity.x = 0, player.velocity.y = 0;
   player.update();
 }
 
