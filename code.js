@@ -4,7 +4,7 @@ const c = canvas.getContext('2d');
 const width = canvas.width = innerWidth;
 const height = canvas.height = innerHeight;
 
-class Wall {
+class Block {
   static width = 60;
   static height = 60;
   constructor(position, image) {
@@ -36,7 +36,7 @@ class Player {
       x:0,
       y:0
     }
-    this.r = (Wall.width / 2) - 5;
+    this.radius = (Block.width / 2) - 5;
   }
 
   draw() {
@@ -44,7 +44,7 @@ class Player {
     c.fillStyle = 'yellow';
     c.arc(
       this.position.x, this.position.y,
-      this.r, 0, Math.PI * 2
+      this.radius, 0, Math.PI * 2
     );
     c.fill();
     c.closePath();
@@ -53,19 +53,19 @@ class Player {
   updateInputs() {
     if(lastKey === 'd') {
       this.velocity.x = 5;
-      if(collidesWithTheWall(player)) this.velocity.x = 0; 
+      if(collidesWithTheBlock(player)) this.velocity.x = 0; 
     }
     else if(lastKey === 'a') {
       this.velocity.x = -5;
-      if(collidesWithTheWall(player)) this.velocity.x = 0;
+      if(collidesWithTheBlock(player)) this.velocity.x = 0;
     }
     else if(lastKey === 's') {
       this.velocity.y = 5;
-      if(collidesWithTheWall(player)) this.velocity.y = 0;
+      if(collidesWithTheBlock(player)) this.velocity.y = 0;
     }
     else if(lastKey === 'w') 
       this.velocity.y = -5;
-      if(collidesWithTheWall(player)) this.velocity.y = 0;
+      if(collidesWithTheBlock(player)) this.velocity.y = 0;
   }
 
   move() {
@@ -80,41 +80,76 @@ class Player {
   }
 }
 
-const walls = new Array();
+class Pellet {
+  constructor(position) {
+    this.position = {
+      x: position.x,
+      y: position.y
+    }
+    this.radius = 5
+  }
+  draw() {
+    c.beginPath();
+    c.fillStyle = 'rgb(231, 170, 120)';
+    c.arc(
+      this.position.x, this.position.y,
+      this.radius, 0, Math.PI * 2
+    );
+    c.fill();
+    c.closePath();
+  }
+}
+
+const pellets = new Array();
+const blocks = new Array();
 const player = new Player(
   position = {
-    x: Wall.width + Wall.width / 2,
-    y: Wall.height + Wall.height / 2
+    x: Block.width + Block.width / 2,
+    y: Block.height + Block.height / 2
   }
 );
 var lastKey = null;
 
+function createNewPellet(x,y) {
+  pellets.push(
+    new Pellet(
+      position = {
+        x: Block.width * x + Block.width / 2,
+        y: Block.height * y + Block.height / 2
+      },
+    )
+  )
+}
+
+function createNewBlock(x, y, blockType) {
+  blocks.push(
+    new Block(
+      position = {
+        x: Block.width * x,
+        y: Block.height * y
+      },
+      image = getImage(blockType)
+    )
+  )
+}
+
 function createMap() {
   const map = [
     ['{','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','}'],
-    ['|',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ','|'], 
-    ['|',' ','<','>',' ','{','_','_','>',' ','<','_','_','_','_','_','>',' ','+',' ','|'],
-    ['|',' ',' ',' ',' ','|',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ','|'],
-    ['[','_','_','>',' ','|',' ','<','}',' ','<','_','_','>',' ','{','_','_','}',' ','v'],
-    [' ',' ',' ',' ',' ','|',' ',' ','|',' ',' ',' ',' ',' ',' ','|',' ',' ','|',' ',' '],
-    ['{','_','_','>',' ','[','_','_',']',' ','<','_','_','>',' ','[','_','_',']',' ','^'],
-    ['|',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ','|'], 
+    ['|','.','.','.','.','.','.','.','.','.','.','.','.','.','.','.','.','.','.','.','|'], 
+    ['|','.','<','>','.','{','_','_','>','.','<','_','_','_','_','_','>','.','+','.','|'],
+    ['|','.','.','.','.','|','.','.','.','.','.','.','.','.','.','.','.','.','.','.','|'],
+    ['[','_','_','>','.','|','.','<','}','.','<','_','_','>','.','{','_','_','}','.','v'],
+    ['.','.','.','.','.','|','.','.','|','.','.','.','.','.','.','|','.','.','|','.','.'],
+    ['{','_','_','>','.','[','_','_',']','.','<','_','_','>','.','[','_','_',']','.','^'],
+    ['|','.','.','.','.','.','.','.','.','.','.','.','.','.','.','.','.','.','.','.','|'], 
     ['[','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_',']']
   ];
 
-  map.forEach((row,i) => {
-    row.forEach((block, i2) => {
-      if(block != ' ') {
-        walls.push(
-          new Wall(
-            position = {
-              x: Wall.width * i2,
-              y: Wall.height * i
-            },
-            image = getImage(block)
-          )
-        )
-      }
+  map.forEach((row, y) => {
+    row.forEach((blockType, x) => {
+      if(blockType === '.') createNewPellet(x, y)
+      else createNewBlock(x, y, blockType); 
     })
   });
 };
@@ -170,26 +205,40 @@ function getImage(type) {
   return image;
 }
 
-function collidesWithTheWall(circle) {
-  return walls.some(wall => 
-    circle.position.x + circle.r + circle.velocity.x 
-    >= wall.position.x &&
-    circle.position.x - circle.r + circle.velocity.x 
-    <= wall.position.x + wall.width &&
-    circle.position.y + circle.r + circle.velocity.y 
-    >= wall.position.y &&
-    circle.position.y - circle.r + circle.velocity.y
-    <= wall.position.y + wall.height);     
+function collidesWithTheCircle(target, circle) {
+  const verDistance = target.position.x - circle.position.x;
+  const horDistance = target.position.y - circle.position.y;
+  const colDistance = target.radius + circle.radius;
+
+  return Math.sqrt(verDistance ** 2 + horDistance ** 2) < colDistance;
+}
+
+function collidesWithTheBlock(circle) {
+  return blocks.some(block => 
+    circle.position.x + circle.radius + circle.velocity.x 
+    >= block.position.x &&
+    circle.position.x - circle.radius + circle.velocity.x 
+    <= block.position.x + block.width &&
+    circle.position.y + circle.radius + circle.velocity.y 
+    >= block.position.y &&
+    circle.position.y - circle.radius + circle.velocity.y
+    <= block.position.y + block.height);     
 };
 
 function run() {
   requestAnimationFrame(run);
   c.clearRect(0,0,canvas.width, canvas.height);
 
-  walls.forEach((wall) => wall.draw());
-  if(collidesWithTheWall(player))
+  blocks.forEach((block) => block.draw());
+  if(collidesWithTheBlock(player))
     player.velocity.x = 0, player.velocity.y = 0;
 
+  pellets.forEach((pellet, i) => {
+    pellet.draw();
+    if(collidesWithTheCircle(player, pellet)) 
+      delete pellets[i];
+  });
+  
   player.update();
 }
 
