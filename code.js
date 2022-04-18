@@ -7,22 +7,22 @@ const height = canvas.height = innerHeight;
 class Wall {
   static width = 60;
   static height = 60;
-  constructor(position) {
+  constructor(position, image) {
     this.position = {
       x: position.x,
       y: position.y
     };
     this.width = 60, this.height = 60;
+    this.image = image
   }
   draw(){
-    c.fillStyle = 'black';
-    c.fillRect(
+    c.drawImage(
+      this.image,
       this.position.x, this.position.y,
       this.width, this.height
-      );
+    );
   };
-  update(){
-  
+  update() {
   }
 };
 
@@ -80,7 +80,7 @@ class Player {
   }
 }
 
-const walls = [];
+const walls = new Array();
 const player = new Player(
   position = {
     x: Wall.width + Wall.width / 2,
@@ -91,28 +91,66 @@ var lastKey = null;
 
 function createMap() {
   const map = [
-    ['+','+','+','+','+','+','+','+','+','+','+','+'],
-    ['+','-','-','-','-','-','-','-','-','-','-','+'], 
-    ['+','-','+','+','+','+','+','+','+','+','-','+'],
-    ['+','-','-','-','-','-','-','-','-','-','-','+'],
-    ['+','+','+','+','+','+','+','+','+','+','+','+']
+    ['|-','_','_','_','_','_','-|'],
+    ['|' ,' ',' ',' ',' ',' ', '|'], 
+    ['|' ,' ','+',' ','+',' ', '|'],
+    ['|' ,' ',' ',' ',' ',' ', '|'],
+    ['|' ,' ','+',' ','+',' ', '|'],
+    ['|' ,' ',' ',' ',' ',' ', '|'],
+    ['|_','_','_','_','_','_','_|']
   ];
 
   map.forEach((row,i) => {
     row.forEach((block, i2) => {
-      if(block === '+') {
+      if(block != ' ') {
         walls.push(
           new Wall(
             position = {
               x: Wall.width * i2,
               y: Wall.height * i
-            }
+            },
+            image = getImage(block)
           )
         )
       }
     })
   });
 };
+
+function getImage(type) {
+  const image = new Image();
+  
+  switch(type) {
+    case '_': 
+      image.src = './imgs/pipeHorizontal.png';
+      break;
+
+    case '|':
+      image.src = './imgs/pipeVertical.png';
+      break;
+
+    case '+':
+      image.src = './imgs/block.png';
+      break;
+
+    case '|-':
+      image.src = './imgs/pipeCorner1.png';
+      break
+
+    case '|_':
+      image.src = './imgs/pipeCorner4.png';
+      break
+
+    case '-|':
+      image.src = './imgs/pipeCorner2.png';
+      break
+
+    case '_|':
+      image.src = './imgs/pipeCorner3.png';
+      break 
+  }
+  return image;
+}
 
 function collidesWithTheWall(circle) {
   return walls.some(wall => 
