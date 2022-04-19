@@ -1,6 +1,8 @@
 const canvas = document.querySelector('canvas');
 const c = canvas.getContext('2d');
 
+const scoreHTML = document.getElementById('score');
+
 const width = canvas.width = innerWidth;
 const height = canvas.height = innerHeight;
 
@@ -102,7 +104,9 @@ class Pellet {
 
 const pellets = new Array();
 const blocks = new Array();
-var lastKey = null, player;
+var lastKey = null;
+var score = 0;
+var player;
 
 function createNewPellet(x,y) {
   pellets.push(
@@ -226,8 +230,6 @@ function getImage(type) {
     case 'u':
       image.src = './imgs/pipeConnectorTop.png';
       break;
-
-    
   }
   return image;
 }
@@ -237,7 +239,7 @@ function collidesWithTheCircle(target, circle) {
   const horDistance = target.position.y - circle.position.y;
   const colDistance = target.radius + circle.radius;
 
-  return Math.sqrt(verDistance ** 2 + horDistance ** 2) < colDistance;
+  return Math.hypot(verDistance, horDistance) < colDistance;
 }
 
 function collidesWithTheBlock(circle) {
@@ -255,6 +257,7 @@ function collidesWithTheBlock(circle) {
 function run() {
   requestAnimationFrame(run);
   c.clearRect(0,0,canvas.width, canvas.height);
+  scoreHTML.innerText = score;
 
   blocks.forEach((block) => block.draw());
   if(collidesWithTheBlock(player))
@@ -262,10 +265,12 @@ function run() {
 
   pellets.forEach((pellet, i) => {
     pellet.draw();
-    if(collidesWithTheCircle(player, pellet)) 
+    if(collidesWithTheCircle(player, pellet)) { 
+      score += 10;
       delete pellets[i];
+    }
   });
-  
+
   player.update();
 }
 
