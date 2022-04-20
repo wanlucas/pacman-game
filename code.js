@@ -136,7 +136,7 @@ class Ghost {
         velocity : { 
           x: possibility.x,
           y: possibility.y
-        }};
+      }};
 
       if(!collidesWithTheBlock(thisObj)) return possibility;
     });
@@ -147,10 +147,10 @@ class Ghost {
       this.velocity.x = 0, this.velocity.y = 0;
 
       const dirPossibilities = this.checkDirectionPossibilities();
-      console.log(dirPossibilities)
       const newDirection = dirPossibilities[
         Math.round(Math.random() * (dirPossibilities.length - 1))
       ];
+
       this.velocity.x = newDirection.x, this.velocity.y = newDirection.y;
     }
   }
