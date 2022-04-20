@@ -36,9 +36,10 @@ class Player {
     }
     this.velocity = {
       x:0,
-      y:0
+      y:0,
+      max:4
     }
-    this.radius = (Block.width / 2) - 3;
+    this.radius = (Block.width / 2) - 2;
   }
 
   draw() {
@@ -54,19 +55,19 @@ class Player {
 
   updateInputs() {
     if(lastKey === 'd') {
-      this.velocity.x = 5;
+      this.velocity.x = this.velocity.max;
       if(collidesWithTheBlock(player)) this.velocity.x = 0; 
     }
     else if(lastKey === 'a') {
-      this.velocity.x = -5;
+      this.velocity.x = -this.velocity.max;
       if(collidesWithTheBlock(player)) this.velocity.x = 0;
     }
     else if(lastKey === 's') {
-      this.velocity.y = 5;
+      this.velocity.y = this.velocity.max;
       if(collidesWithTheBlock(player)) this.velocity.y = 0;
     }
     else if(lastKey === 'w') 
-      this.velocity.y = -5;
+      this.velocity.y = -this.velocity.max;
       if(collidesWithTheBlock(player)) this.velocity.y = 0;
   }
 
@@ -102,6 +103,76 @@ class Pellet {
   }
 }
 
+
+class Ghost {
+  constructor(position) {
+    this.position = {
+      x: position.x,
+      y: position.y
+    }
+    this.velocity = {
+      x: 3,
+      y: 0
+    }
+    this.radius = Block.width / 2 - 1
+  }
+  draw() {
+    c.beginPath();
+    c.fillStyle = 'blue'
+    c.arc(
+      this.position.x, this.position.y,
+      this.radius, 0, Math.PI * 2
+    );
+    c.fill();
+    c.closePath();
+  }
+  
+  checkDirectionPossibilities() {
+    const possibilities = [{x:0, y:2}, {x:0, y:-2}, {x:2, y:0}, {x:-2, y:0}];
+
+    return possibilities.filter((possibility) => {
+      const thisObj = {
+        ...this,
+        velocity : { 
+          x: possibility.x,
+          y: possibility.y
+        }};
+
+      if(!collidesWithTheBlock(thisObj)) return possibility;
+    });
+  }
+
+  updateDirection() {
+    if(collidesWithTheBlock(this)) {
+      this.velocity.x = 0, this.velocity.y = 0;
+
+      const dirPossibilities = this.checkDirectionPossibilities();
+      console.log(dirPossibilities)
+      const newDirection = dirPossibilities[
+        Math.round(Math.random() * (dirPossibilities.length - 1))
+      ];
+      this.velocity.x = newDirection.x, this.velocity.y = newDirection.y;
+    }
+  }
+
+  move() {
+    this.position.x += this.velocity.x;
+    this.position.y += this.velocity.y;
+  }
+
+  update() {
+    this.draw();
+    this.updateDirection();
+    this.move();
+  }
+}
+
+const ghost = new Ghost(
+  position = {
+    x:Block.width * 3,
+    y: Block.height + Block.height / 2
+  }
+)
 const pellets = new Array();
 const blocks = new Array();
 var lastKey = null;
@@ -260,8 +331,8 @@ function run() {
   scoreHTML.innerText = score;
 
   blocks.forEach((block) => block.draw());
-  if(collidesWithTheBlock(player))
-    player.velocity.x = 0, player.velocity.y = 0;
+    if(collidesWithTheBlock(player))
+      player.velocity.x = 0, player.velocity.y = 0;
 
   pellets.forEach((pellet, i) => {
     pellet.draw();
@@ -270,6 +341,8 @@ function run() {
       delete pellets[i];
     }
   });
+  
+  ghost.update();
 
   player.update();
 }
