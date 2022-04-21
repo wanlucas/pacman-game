@@ -170,7 +170,7 @@ function getPossibleDirections(obj) {
 
     return !collidesWithTheBlock(thisObj);
   });
-}
+};
 
 function collidesWithTheCircle(target, circle) {
   const verDistance = target.position.x - circle.position.x;
@@ -178,7 +178,7 @@ function collidesWithTheCircle(target, circle) {
   const colDistance = target.radius + circle.radius;
 
   return Math.hypot(verDistance, horDistance) <= colDistance;
-}
+};
 
 function collidesWithTheBlock(circle) {
   const radiusConstant = Block.width / 2 - 2; //to keep centralized
@@ -339,7 +339,7 @@ function getImage(type) {
       break;
   }
   return image;
-}
+};
 
 function gameOver() {
   if(score > highScore) highScore = score;
@@ -355,7 +355,7 @@ function gameOver() {
     score = 0;
     run();
   },2000);
-}
+};
 
 function run() {
   let animation = requestAnimationFrame(run);
@@ -386,7 +386,7 @@ function run() {
   });
 
   player && player.update();
-}
+};
 
 function addInputEvents() {
   addEventListener('keypress', ({ key }) => {
@@ -394,9 +394,9 @@ function addInputEvents() {
   });
 };
 
-addEventListener('load', ()=> {
+addEventListener('load', () => {
   createMap();
   addInputEvents();
   run();
   alert('this game is in development');
-})
+});
