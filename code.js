@@ -152,9 +152,9 @@ class Ghost {
 const blocks = new Array();
 const ghosts = new Array();
 const pellets = new Array();
-var lastKey = null;
-var score = 0;
 var player;
+var score = 0, highScore = 0;
+var lastKey = null;
 
 function getPossibleDirections(obj) {
   const directions = [{x:2, y:0}, {x:-2, y:0}, {x:0, y:2}, {x:0, y:-2}];
@@ -340,31 +340,50 @@ function getImage(type) {
   return image;
 }
 
+function gameOver() {
+  if(score > highScore) highScore = score;
+
+  setTimeout(()=> {
+    ghosts.splice(0), pellets.splice(0);
+    player = null, lastKey = null;
+  },1000);
+
+  setTimeout(()=> {
+    createMap();
+    score = 0;
+    run();
+  },2000);
+}
+
 function run() {
-  requestAnimationFrame(run);
+  let animation = requestAnimationFrame(run);
   c.clearRect(0,0,canvas.width, canvas.height);
+
   scoreHTML.innerText = score;
 
-  blocks.forEach((block) => block.draw());
-    if(collidesWithTheBlock(player))
-      player.velocity.x = 0, player.velocity.y = 0;
+  blocks.forEach((block) => {
+    block.draw();
+    if(player && collidesWithTheBlock(player))
+      player.velocity.x = 0, player.velocity.y = 0; 
+  });
 
   pellets.forEach((pellet, i) => {
     pellet.draw();
     if(collidesWithTheCircle(player, pellet)) { 
       score += 10;
       delete pellets[i];
-    }
+    }0
   });
   
   ghosts.forEach((ghost) => {
     ghost.update();
     if(collidesWithTheCircle(player, ghost)) {
-      alert('game over');
+      gameOver();
+      cancelAnimationFrame(animation);
     }
   });
 
-  player.update();
+  player && player.update();
 }
 
 function addInputEvents() {
