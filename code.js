@@ -103,7 +103,6 @@ class Pellet {
   }
 }
 
-
 class Ghost {
   constructor(position) {
     this.position = {
@@ -114,8 +113,9 @@ class Ghost {
       x: 3,
       y: 0
     }
-    this.radius = Block.width / 2 - 1
+    this.radius = Block.width / 2 - 4
   }
+
   draw() {
     c.beginPath();
     c.fillStyle = 'blue'
@@ -127,43 +127,25 @@ class Ghost {
     c.closePath();
   }
   
-  checkDirectionPossibilities() {
-    const possibilities = [{x:0, y:2}, {x:0, y:-2}, {x:2, y:0}, {x:-2, y:0}];
-
-    return possibilities.filter((possibility) => {
-      const thisObj = {
-        ...this,
-        velocity : { 
-          x: possibility.x,
-          y: possibility.y
-      }};
-
-      if(!collidesWithTheBlock(thisObj)) return possibility;
-    });
-  }
-
-  updateDirection() {
-    if(collidesWithTheBlock(this)) {
-      this.velocity.x = 0, this.velocity.y = 0;
-
-      const dirPossibilities = this.checkDirectionPossibilities();
-      const newDirection = dirPossibilities[
-        Math.round(Math.random() * (dirPossibilities.length - 1))
+  move() {
+    if(!collidesWithTheBlock(this)) {
+      this.position.x += this.velocity.x;
+      this.position.y += this.velocity.y;
+    }
+    else {
+      const possibilities = getPossibleDirections(this);
+      const newDirection = possibilities[
+        Math.round(Math.random(possibilities.length - 1)) 
       ];
-
-      this.velocity.x = newDirection.x, this.velocity.y = newDirection.y;
+  
+      this.velocity.x = newDirection.x;
+      this.velocity.y = newDirection.y;
     }
   }
 
-  move() {
-    this.position.x += this.velocity.x;
-    this.position.y += this.velocity.y;
-  }
-
   update() {
-    this.draw();
-    this.updateDirection();
     this.move();
+    this.draw();
   }
 }
 
@@ -172,7 +154,7 @@ const ghost = new Ghost(
     x:Block.width * 3,
     y: Block.height + Block.height / 2
   }
-)
+);
 const pellets = new Array();
 const blocks = new Array();
 var lastKey = null;
@@ -305,6 +287,21 @@ function getImage(type) {
   return image;
 }
 
+function getPossibleDirections(obj) {
+  const directions = [{x:2, y:0}, {x:-2, y:0}, {x:0, y:2}, {x:0, y:-2}];
+
+  return directions.filter((direction) => {
+    const thisObj = {
+      ...obj,
+      velocity : { 
+        x: direction.x,
+        y: direction.y
+    }};
+
+    return !collidesWithTheBlock(thisObj);
+  });
+}
+
 function collidesWithTheCircle(target, circle) {
   const verDistance = target.position.x - circle.position.x;
   const horDistance = target.position.y - circle.position.y;
@@ -314,14 +311,15 @@ function collidesWithTheCircle(target, circle) {
 }
 
 function collidesWithTheBlock(circle) {
+  const radiusConstant = Block.width / 2 - 2; //to keep centralized
   return blocks.some(block => 
-    circle.position.x + circle.radius + circle.velocity.x 
+    circle.position.x + radiusConstant + circle.velocity.x 
     >= block.position.x &&
-    circle.position.x - circle.radius + circle.velocity.x 
+    circle.position.x - radiusConstant + circle.velocity.x 
     <= block.position.x + block.width &&
-    circle.position.y + circle.radius + circle.velocity.y 
+    circle.position.y + radiusConstant + circle.velocity.y 
     >= block.position.y &&
-    circle.position.y - circle.radius + circle.velocity.y
+    circle.position.y - radiusConstant + circle.velocity.y
     <= block.position.y + block.height);     
 };
 
@@ -367,5 +365,5 @@ addEventListener('load', ()=> {
   addInputEvents();
   createNewPlayer();
   run();
-  alert('this game is in development');
+  //alert('this game is in development');
 })
