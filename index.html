@@ -28,18 +28,23 @@
     p {
       color: white;
       font-family: sans-serif;
+      text-transform: uppercase;
       font-weight: 700;
     }
-    #score {
-      margin-left: 1rem;
+    #score, #high-score {
+      margin-left: 40%;
     }
   </style>
 </head>
 <body>
   <header>
     <div class="score">
-      <p>1UP:</p>
+      <p>1up:</p>
       <p id="score"></p>
+    </div>
+    <div style="margin-left:100px" class="high-score">
+      <p>high score</p>
+      <p id="high-score">0</p>
     </div>
   </header>
   <canvas></canvas>

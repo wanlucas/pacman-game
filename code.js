@@ -2,6 +2,7 @@ const canvas = document.querySelector('canvas');
 const c = canvas.getContext('2d');
 
 const scoreHTML = document.getElementById('score');
+const highScoreHTML = document.getElementById('high-score');
 
 const width = canvas.width = innerWidth;
 const height = canvas.height = innerHeight;
@@ -342,6 +343,7 @@ function getImage(type) {
 
 function gameOver() {
   if(score > highScore) highScore = score;
+  highScoreHTML.innerText = highScore;
 
   setTimeout(()=> {
     ghosts.splice(0), pellets.splice(0);
