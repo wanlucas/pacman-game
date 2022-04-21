@@ -176,7 +176,7 @@ function collidesWithTheCircle(target, circle) {
   const horDistance = target.position.y - circle.position.y;
   const colDistance = target.radius + circle.radius;
 
-  return Math.hypot(verDistance, horDistance) < colDistance;
+  return Math.hypot(verDistance, horDistance) <= colDistance;
 }
 
 function collidesWithTheBlock(circle) {
@@ -266,8 +266,8 @@ function createNewGhost(x, y) {
   ghosts.push(
     new Ghost(
       position = {
-        x: Block.width * x + Block.width / 2,
-        y: Block.height * y + Block.height / 2
+        x: Math.round(Block.width * x + Block.width / 2),
+        y: Math.round(Block.height * y + Block.height / 2)
       }
     )
   );
@@ -357,7 +357,12 @@ function run() {
     }
   });
   
-  ghosts.forEach((ghost) => ghost.update());
+  ghosts.forEach((ghost) => {
+    ghost.update();
+    if(collidesWithTheCircle(player, ghost)) {
+      alert('game over');
+    }
+  });
 
   player.update();
 }
