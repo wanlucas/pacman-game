@@ -126,6 +126,7 @@ class Power {
 
 class Ghost {
   constructor(position) {
+    this.color = 'red'
     this.position = {
       x: position.x,
       y: position.y
@@ -135,11 +136,12 @@ class Ghost {
       y: 0
     }
     this.radius = Block.width / 2 - 4
+    this.scared = false
   }
 
   draw() {
     c.beginPath();
-    c.fillStyle = 'blue'
+    c.fillStyle = this.color;
     c.arc(
       this.position.x, this.position.y,
       this.radius, 0, Math.PI * 2
@@ -156,17 +158,18 @@ class Ghost {
     else {
       const possibilities = getPossibleDirections(this);
       const newDirection = possibilities[
-        Math.round(Math.random(possibilities.length - 1)) 
-      ];
+        Math.round(Math.random() * (possibilities.length - 1))
+      ]
   
       this.velocity.x = newDirection.x;
       this.velocity.y = newDirection.y;
-    }
+    };
   }
 
   update() {
     this.move();
     this.draw();
+    this.color = this.scared ? 'blue' : 'red';
   }
 }
 
@@ -191,7 +194,7 @@ function getPossibleDirections(obj) {
 
     return !collidesWithTheBlock(thisObj);
   });
-};
+}
 
 function collidesWithTheCircle(target, circle) {
   const verDistance = target.position.x - circle.position.x;
@@ -410,11 +413,15 @@ function run() {
     }
   });
   
-  ghosts.forEach((ghost) => {
+  ghosts.forEach((ghost, i) => {
     ghost.update();
     if(collidesWithTheCircle(player, ghost)) {
-      gameOver();
-      cancelAnimationFrame(animation);
+
+      if(ghost.scared) delete ghosts[i]
+      else {
+        gameOver();
+        cancelAnimationFrame(animation);
+      }
     }
   });
 
@@ -422,6 +429,11 @@ function run() {
     power.draw();
     if(collidesWithTheCircle(player, power)) {
       delete powers[i];
+
+      ghosts.forEach((ghost)=> {
+        ghost.scared = true;
+        setTimeout(()=> ghost.scared = false, 10000);
+      })
     }
   });
 
