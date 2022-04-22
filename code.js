@@ -133,7 +133,8 @@ class Ghost {
     }
     this.velocity = {
       x: 3,
-      y: 0
+      y: 0,
+      max: 4
     }
     this.radius = Block.width / 2 - 4
     this.scared = false
@@ -182,7 +183,8 @@ var score = 0, highScore = 0;
 var lastKey = null;
 
 function getPossibleDirections(obj) {
-  const directions = [{x:2, y:0}, {x:-2, y:0}, {x:0, y:2}, {x:0, y:-2}];
+  const vel = obj.velocity.max;
+  const directions = [{x:vel, y:0}, {x:-vel, y:0}, {x:0, y:vel}, {x:0, y:-vel}];
 
   return directions.filter((direction) => {
     const thisObj = {
@@ -205,7 +207,7 @@ function collidesWithTheCircle(target, circle) {
 };
 
 function collidesWithTheBlock(circle) {
-  const radiusConstant = Block.width / 2 - 2; //to keep centralized
+  const radiusConstant = Math.floor(Block.width / 2) - 2; //to keep centralized
   return blocks.some(block => 
     circle.position.x + radiusConstant + circle.velocity.x 
     >= block.position.x &&
