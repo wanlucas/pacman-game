@@ -94,7 +94,27 @@ class Pellet {
   }
   draw() {
     c.beginPath();
-    c.fillStyle = 'rgb(231, 170, 120)';
+    c.fillStyle = 'orange';
+    c.arc(
+      this.position.x, this.position.y,
+      this.radius, 0, Math.PI * 2
+    );
+    c.fill();
+    c.closePath();
+  }
+}
+
+class Power {
+  constructor(position) {
+    this.position = {
+      x: position.x,
+      y: position.y
+    }
+    this.radius = Block.width / 4
+  }
+  draw() {
+    c.beginPath();
+    c.fillStyle = 'orange';
     c.arc(
       this.position.x, this.position.y,
       this.radius, 0, Math.PI * 2
@@ -153,6 +173,7 @@ class Ghost {
 const blocks = new Array();
 const ghosts = new Array();
 const pellets = new Array();
+const powers = new Array();
 var player;
 var score = 0, highScore = 0;
 var lastKey = null;
@@ -196,10 +217,10 @@ function collidesWithTheBlock(circle) {
 function createMap() {
   const map = [
     ['{','_','_','_','_','_','_','_','_','~','_','_','_','_','_','_','_','_','}'],
-    ['|','.','.','.','.','.','.','.','.','|','.','.','.','.','.','.','.','.','|'], 
+    ['|','.','.','.','g','.','.','.','.','|','.','.','.','.','g','.','.','.','|'], 
     ['|','.','{','}','.','{','_','}','.','|','.','{','_','}','.','{','}','.','|'], 
     ['|','.','[',']','.','[','_',']','.','v','.','[','_',']','.','[',']','.','|'], 
-    ['|','.','.','.','.','.','.','.','.','.','.','.','.','.','.','.','.','.','|'], 
+    ['|','.','.','.','o','.','.','.','.','.','.','.','.','.','o','.','.','.','|'], 
     ['|','.','<','>','.','^','.','<','_','~','_','>','.','^','.','<','>','.','|'],
     ['|','.','.','.','.','|','.','.','.','|','.','.','.','|','.','.','.','.','|'],
     ['[','_','_','}','.','(','_','>',' ','v',' ','<','_',')','.','{','_','_',']'],
@@ -209,13 +230,13 @@ function createMap() {
     [' ',' ',' ',' ','p',' ',' ','|',' ',' ',' ','|',' ',' ','.',' ',' ',' ',' '], 
     ['_','_','_','}','.','^',' ','|',' ',' ',' ','|',' ','^','.','{','_','_','_'], 
     [' ',' ',' ','|','.','|',' ','[','_','_','_',']',' ','|','.','|',' ',' ',' '], 
-    [' ',' ',' ','|','g','|',' ',' ',' ',' ',' ',' ',' ','|','g','|',' ',' ',' '], 
+    [' ',' ',' ','|','.','|',' ',' ',' ',' ',' ',' ',' ','|','.','|',' ',' ',' '], 
     ['{','_','_',']','.','v',' ','<','_','~','_','>',' ','v','.','[','_','_','}'], 
     ['|','.','.','.','.','.','.','.','.','|','.','.','.','.','.','.','.','.','|'], 
-    ['|','.','<','}','.','<','_','>','.','v','.','<','_','>','.','{','>','.','|'], 
-    ['|','.','.','|','g','.','.','.','.','.','.','.','.','.','g','|','.','.','|'], 
+    ['|','.','<','}','g','<','_','>','.','v','.','<','_','>','g','{','>','.','|'], 
+    ['|','.','.','|','.','.','.','.','.','.','.','.','.','.','.','|','.','.','|'], 
     ['|','>','.','v','.','^','.','<','_','~','_','>','.','^','.','v','.','<',')'], 
-    ['|','.','.','.','.','|','.','.','.','|','.','.','.','|','.','.','.','.','|'], 
+    ['|','.','.','.','o','|','.','.','.','|','.','.','.','|','o','.','.','.','|'], 
     ['|','.','<','_','_','u','_','>','.','v','.','<','_','u','_','_','>','.','|'], 
     ['|','.','.','.','.','.','.','.','.','.','.','.','.','.','.','.','.','.','|'], 
     ['[','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_',']']
@@ -226,6 +247,7 @@ function createMap() {
       if(blockType === '.') createNewPellet(x, y)
       else if(blockType === 'g') createNewGhost(x, y)
       else if(blockType === 'p') createNewPlayer(x, y)
+      else if(blockType === 'o') createNewPower({ x,y })
       else if(blockType != ' ') createNewBlock(x, y, blockType); 
     })
   });
@@ -253,6 +275,17 @@ function createNewPellet(x, y) {
     )
   );
 };
+
+function createNewPower(position) {
+  powers.push(
+    new Power(
+      position = {
+        x: Block.width * position.x + Block.width / 2,
+        y: Block.height * position.y + Block.height / 2
+      },
+    )
+  );
+}
 
 function createNewPlayer(x, y) {
   player = new Player(
@@ -374,7 +407,7 @@ function run() {
     if(collidesWithTheCircle(player, pellet)) { 
       score += 10;
       delete pellets[i];
-    }0
+    }
   });
   
   ghosts.forEach((ghost) => {
@@ -382,6 +415,13 @@ function run() {
     if(collidesWithTheCircle(player, ghost)) {
       gameOver();
       cancelAnimationFrame(animation);
+    }
+  });
+
+  powers.forEach((power, i) => {
+    power.draw();
+    if(collidesWithTheCircle(player, power)) {
+      delete powers[i];
     }
   });
 
