@@ -137,7 +137,8 @@ class Ghost {
       max: Block.width / 10
     }
     this.radius = Block.width / 2 - 4
-    this.scared = false
+    this.scared = false;
+    this.turning = false;
   }
 
   draw() {
@@ -160,16 +161,16 @@ class Ghost {
       const possibilities = getPossibleDirections(this);
       const newDirection = possibilities[
         Math.round(Math.random() * (possibilities.length - 1))
-      ]
-  
+      ];
+      
       this.velocity.x = newDirection.x;
       this.velocity.y = newDirection.y;
     };
   }
 
   update() {
-    this.move();
     this.draw();
+    this.move();
     this.color = this.scared ? 'blue' : 'red';
   }
 }
@@ -192,7 +193,7 @@ function getPossibleDirections(obj) {
       velocity : { 
         x: direction.x,
         y: direction.y
-    }};
+      }};
 
     return !collidesWithTheBlock(thisObj);
   });
@@ -207,22 +208,22 @@ function collidesWithTheCircle(target, circle) {
 };
 
 function collidesWithTheBlock(circle) {
-  const radiusConstant = Block.width / 2 - 2 //to keep centralized
+  const constantRadius = Block.width / 2 - 2 //to keep centralized
   return blocks.some(block => 
-    circle.position.x + radiusConstant + circle.velocity.x 
+    circle.position.x + constantRadius + circle.velocity.x 
     >= block.position.x &&
-    circle.position.x - radiusConstant + circle.velocity.x 
+    circle.position.x - constantRadius + circle.velocity.x 
     <= block.position.x + block.width &&
-    circle.position.y + radiusConstant + circle.velocity.y 
+    circle.position.y + constantRadius + circle.velocity.y 
     >= block.position.y &&
-    circle.position.y - radiusConstant + circle.velocity.y
+    circle.position.y - constantRadius + circle.velocity.y
     <= block.position.y + block.height);     
 };
 
 function createMap() {
   const map = [
     ['{','_','_','_','_','_','_','_','_','~','_','_','_','_','_','_','_','_','}'],
-    ['|','.','.','.','g','.','.','.','.','|','.','.','.','.','g','.','.','.','|'], 
+    ['|','.','.','.','.','.','.','.','.','|','.','.','.','.','.','.','.','.','|'], 
     ['|','.','{','}','.','{','_','}','.','|','.','{','_','}','.','{','}','.','|'], 
     ['|','.','[',']','.','[','_',']','.','v','.','[','_',']','.','[',']','.','|'], 
     ['|','.','.','.','o','.','.','.','.','.','.','.','.','.','o','.','.','.','|'], 
@@ -238,7 +239,7 @@ function createMap() {
     [' ',' ',' ','|','.','|',' ',' ',' ',' ',' ',' ',' ','|','.','|',' ',' ',' '], 
     ['{','_','_',']','.','v',' ','<','_','~','_','>',' ','v','.','[','_','_','}'], 
     ['|','.','.','.','.','.','.','.','.','|','.','.','.','.','.','.','.','.','|'], 
-    ['|','.','<','}','g','<','_','>','.','v','.','<','_','>','g','{','>','.','|'], 
+    ['|','.','<','}','g','<','_','>','.','v','.','<','_','>','.','{','>','.','|'], 
     ['|','.','.','|','.','.','.','.','.','.','.','.','.','.','.','|','.','.','|'], 
     ['|','>','.','v','.','^','.','<','_','~','_','>','.','^','.','v','.','<',')'], 
     ['|','.','.','.','o','|','.','.','.','|','.','.','.','|','o','.','.','.','|'], 
@@ -248,34 +249,34 @@ function createMap() {
   ];
 
   map.forEach((row, y) => {
-    row.forEach((blockType, x) => {
-      if(blockType === '.') createNewPellet(x, y)
-      else if(blockType === 'g') createNewGhost(x, y)
-      else if(blockType === 'p') createNewPlayer(x, y)
-      else if(blockType === 'o') createNewPower({ x,y })
-      else if(blockType != ' ') createNewBlock(x, y, blockType); 
+    row.forEach((type, x) => {
+      if(type === '.') createNewPellet({ x,y })
+      else if(type === 'g') createNewGhost({ x,y })
+      else if(type === 'p') createNewPlayer({ x,y })
+      else if(type === 'o') createNewPower({ x,y })
+      else if(type != ' ') createNewBlock({ x,y }, type); 
     })
   });
 };
 
-function createNewBlock(x, y, blockType) {
+function createNewBlock(position, blockType) {
   blocks.push(
     new Block(
       position = {
-        x: Block.width * x,
-        y: Block.height * y
+        x: Block.width * position.x,
+        y: Block.height * position.y
       },
       image = getImage(blockType)
     )
   );
 };
 
-function createNewPellet(x, y) {
+function createNewPellet(position) {
   pellets.push(
     new Pellet(
       position = {
-        x: Block.width * x + Block.width / 2,
-        y: Block.height * y + Block.height / 2
+        x: Block.width * position.x + Block.width / 2,
+        y: Block.height * position.y + Block.height / 2
       },
     )
   );
@@ -292,21 +293,21 @@ function createNewPower(position) {
   );
 }
 
-function createNewPlayer(x, y) {
+function createNewPlayer(position) {
   player = new Player(
     position = {
-      x: Math.round(Block.width * x + Block.width / 2),
-      y: Math.round(Block.height * y + Block.height / 2)
+      x: Math.round(Block.width * position.x + Block.width / 2),
+      y: Math.round(Block.height * position.y + Block.height / 2)
     }
   );
 };
 
-function createNewGhost(x, y) {
+function createNewGhost(position) {
   ghosts.push(
     new Ghost(
       position = {
-        x: Math.round(Block.width * x + Block.width / 2),
-        y: Math.round(Block.height * y + Block.height / 2)
+        x: Math.round(Block.width * position.x + Block.width / 2),
+        y: Math.round(Block.height * position.y + Block.height / 2)
       }
     )
   );
@@ -415,7 +416,6 @@ function run() {
     }
   });
   
-  
   powers.forEach((power, i) => {
     power.draw();
     if(collidesWithTheCircle(player, power)) {
@@ -443,15 +443,9 @@ function run() {
   player && player.update();
 };
 
-function addInputEvents() {
-  addEventListener('keypress', ({ key }) => {
-    lastKey = key;
-  });
-};
-
 addEventListener('load', () => {
   createMap();
-  addInputEvents();
+  addEventListener('keypress', ({ key }) => lastKey = key);
   run();
   alert('this game is in development');
 });
