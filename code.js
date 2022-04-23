@@ -38,7 +38,7 @@ class Player {
     this.velocity = {
       x:0,
       y:0,
-      max:4
+      max: Block.width / 10
     }
     this.radius = (Block.width / 2) - 2;
   }
@@ -134,7 +134,7 @@ class Ghost {
     this.velocity = {
       x: 3,
       y: 0,
-      max: 4
+      max: Block.width / 10
     }
     this.radius = Block.width / 2 - 4
     this.scared = false
@@ -207,7 +207,7 @@ function collidesWithTheCircle(target, circle) {
 };
 
 function collidesWithTheBlock(circle) {
-  const radiusConstant = Math.floor(Block.width / 2) - 2; //to keep centralized
+  const radiusConstant = Block.width / 2 - 2 //to keep centralized
   return blocks.some(block => 
     circle.position.x + radiusConstant + circle.velocity.x 
     >= block.position.x &&
@@ -415,27 +415,28 @@ function run() {
     }
   });
   
+  
+  powers.forEach((power, i) => {
+    power.draw();
+    if(collidesWithTheCircle(player, power)) {
+      delete powers[i];
+      
+      ghosts.forEach((ghost)=> {
+        ghost.scared = true;
+        setTimeout(()=> ghost.scared = false, 3000);
+      })
+    }
+  });
+  
   ghosts.forEach((ghost, i) => {
     ghost.update();
     if(collidesWithTheCircle(player, ghost)) {
-
+  
       if(ghost.scared) delete ghosts[i]
       else {
         gameOver();
         cancelAnimationFrame(animation);
       }
-    }
-  });
-
-  powers.forEach((power, i) => {
-    power.draw();
-    if(collidesWithTheCircle(player, power)) {
-      delete powers[i];
-
-      ghosts.forEach((ghost)=> {
-        ghost.scared = true;
-        setTimeout(()=> ghost.scared = false, 10000);
-      })
     }
   });
 
