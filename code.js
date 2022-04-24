@@ -132,10 +132,11 @@ class Player {
   }
 
   update() {
-    this.mouthOpn > 1 ? this.mouthOpn = 0 : this.mouthOpn += 0.1;
     this.draw();
     this.updateInputs();
     this.move();
+    if(this.velocity.x || this.velocity.y) 
+      this.mouthOpn > 1 ? this.mouthOpn = 0 : this.mouthOpn += 0.1;
   }
 }
 
