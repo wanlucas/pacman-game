@@ -36,14 +36,30 @@ class Gate {
       x: position.x, 
       y: position.y
     }
-    this.width = Block.width;
+    this.images = {
+      closed: getImage('_'),
+      opened: getImage('"')
+    }
+    this.width = 0;
     this.height = Block.height;
-    this.open = true;
   }
 
+  draw(image) {
+    c.drawImage(
+      image,
+      this.position.x, this.position.y,
+      Block.width, Block.height
+    );
+  }
   update() {
-    console.log('foi')
-    if(this.open) this.width = 0;
+    if(gatesOpened) {
+      this.width = 0;
+      this.draw(this.images.opened);
+    }
+    else {
+      this.width = Block.width;
+      this.draw(this.images.closed);
+    }
   }
 }
 
@@ -216,8 +232,8 @@ const ghosts = new Array();
 const pellets = new Array();
 const powers = new Array();
 var player;
-var score = 0, highScore = 0;
-var lastKey = null;
+var score, highScore, count;
+var lastKey = null, gatesOpened = false;
 
 function getPossibleDirections(obj) {
   const vel = obj.velocity.max;
@@ -266,19 +282,19 @@ function createMap() {
     ['|','.','{','}','.','{','_','}','.','|','.','{','_','}','.','{','}','.','|'], 
     ['|','.','[',']','.','[','_',']','.','v','.','[','_',']','.','[',']','.','|'], 
     ['|','.','.','.','.','.','.','.','.','.','.','.','.','.','.','.','.','.','|'], 
-    ['|','.','<','>','g','^','.','<','_','~','_','>','.','^','g','<','>','.','|'],
+    ['|','.','<','>','.','^','.','<','_','~','_','>','.','^','.','<','>','.','|'],
     ['|','.','.','.','.','|','.','.','.','|','.','.','.','|','.','.','.','.','|'],
     ['[','_','_','}','.','(','_','>',' ','v',' ','<','_',')','.','{','_','_',']'],
-    [' ',' ',' ','|','.','|',' ',' ',' ',' ',' ',' ',' ','|','.','|',' ',' ',' '],
-    [' ',' ',' ','|','.','|',' ','{','_','_','_','}',' ','|','.','|',' ',' ',' '], 
-    ['{','_','_',']','.','v',' ','|',' ',' ',' ','|',' ','v','.','[','_','_','}'],
-    ['|','o',' ',' ','.',' ',' ','|',' ',' ',' ','|',' ',' ','.',' ',' ','o','|'], 
-    ['[','_','_','}','.','^',' ','|',' ',' ',' ','|',' ','^','.','{','_','_',']'], 
+    [' ',' ',' ','|','.','|',' ',' ','g','g','g',' ',' ','|','.','|',' ',' ',' '],
+    [' ',' ',' ','|','.','|',' ','{','"','"','"','}',' ','|','.','|',' ',' ',' '], 
+    ['{','_','_',']','.','v',' ','|','g','g','g','|',' ','v','.','[','_','_','}'],
+    ['|','o',' ',' ','.',' ',' ','|','g','g','g','|',' ',' ','.',' ',' ','o','|'], 
+    ['[','_','_','}','.','^',' ','|','g','g','g','|',' ','^','.','{','_','_',']'], 
     [' ',' ',' ','|','.','|',' ','[','_','_','_',']',' ','|','.','|',' ',' ',' '], 
     [' ',' ',' ','|','.','|',' ',' ',' ',' ',' ',' ',' ','|','.','|',' ',' ',' '], 
     ['{','_','_',']','.','v',' ','<','_','~','_','>',' ','v','.','[','_','_','}'], 
     ['|','.','.','.','.','.','.','.','.','|','.','.','.','.','.','.','.','.','|'], 
-    ['|','.','<','}','g','<','_','>','.','v','.','<','_','>','g','{','>','.','|'], 
+    ['|','.','<','}','.','<','_','>','.','v','.','<','_','>','.','{','>','.','|'], 
     ['|','.','.','|','.','.','.','.','.','.','.','.','.','.','.','|','.','.','|'], 
     ['|','>','.','v','.','^','.','<','_','~','_','>','.','^','.','v','.','<',')'], 
     ['|','.','.','.','.','|','.','.','.','|','.','.','.','|','.','.','.','.','|'], 
@@ -293,6 +309,7 @@ function createMap() {
       else if(type === 'g') createNewGhost({ x,y })
       else if(type === 'p') createNewPlayer({ x,y })
       else if(type === 'o') createNewPower({ x,y })
+      else if(type === '"') createNewGate({ x,y })
       else if(type != ' ') createNewBlock({ x,y }, type); 
     })
   });
@@ -373,6 +390,10 @@ function getImage(type) {
     case 'u':
       image.src = './imgs/pipeConnectorTop.png';
       break;
+
+    case '"':
+      image.src = './imgs/pipeCross.png';
+      break;
   }
 
   return image;
@@ -431,6 +452,11 @@ function createNewGhost(position) {
   );
 };
 
+function openGates() {
+  gatesOpened = true;
+  setTimeout(()=> gatesOpened = false ,1000);
+};
+
 function gameOver() {
   if(score > highScore) highScore = score;
   highScoreHTML.innerText = highScore;
@@ -440,11 +466,7 @@ function gameOver() {
     player = null, lastKey = null;
   },1000);
 
-  setTimeout(()=> {
-    createMap();
-    score = 0;
-    run();
-  },2000);
+  setTimeout(()=> start() ,2000);
 };
 
 function run() {
@@ -493,9 +515,20 @@ function run() {
   player && player.update();
 };
 
-addEventListener('load', () => {
+function start() {
+  score = 0;
+  count = 0;
   createMap();
+  run(); 
+}
+
+addEventListener('load', () => {
+  start();
   addEventListener('keypress', ({ key }) => lastKey = key);
-  run();
   alert('this game is in development');
+  setInterval(()=> {
+    count < 60 ? count++ : count = 0;
+    
+    if(count % 5 == 0) openGates();
+  },1000);
 });
