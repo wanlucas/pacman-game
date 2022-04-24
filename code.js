@@ -75,35 +75,50 @@ class Player {
       max: Block.width / 10
     }
     this.radius = (Block.width / 2) - 2;
+    this.mouthOpn = 0.2;
+    this.mouthDirection = 0;
   }
 
   draw() {
+    c.save();
+    c.translate(this.position.x, this.position.y);
+    c.rotate(this.mouthDirection);
+    c.translate(-this.position.x, -this.position.y)
     c.beginPath();
     c.fillStyle = 'yellow';
+    c.lineTo(this.position.x, this.position.y);
     c.arc(
       this.position.x, this.position.y,
-      this.radius, 0, Math.PI * 2
+      this.radius, this.mouthOpn,
+      Math.PI * 2 - this.mouthOpn
     );
     c.fill();
     c.closePath();
+    c.restore();
   }
 
   updateInputs() {
     if(lastKey === 'd') {
       this.velocity.x = this.velocity.max;
-      if(collidesWithTheBlock(player)) this.velocity.x = 0; 
+      if(collidesWithTheBlock(player)) this.velocity.x = 0
+      else this.mouthDirection = 0;
     }
     else if(lastKey === 'a') {
       this.velocity.x = -this.velocity.max;
-      if(collidesWithTheBlock(player)) this.velocity.x = 0;
+      if(collidesWithTheBlock(player)) this.velocity.x = 0
+      else this.mouthDirection = Math.PI;
     }
     else if(lastKey === 's') {
       this.velocity.y = this.velocity.max;
-      if(collidesWithTheBlock(player)) this.velocity.y = 0;
+      if(collidesWithTheBlock(player)) this.velocity.y = 0
+      else this.mouthDirection = Math.PI / 2;
     }
-    else if(lastKey === 'w') 
+
+    else if(lastKey === 'w') {
       this.velocity.y = -this.velocity.max;
-      if(collidesWithTheBlock(player)) this.velocity.y = 0;
+      if(collidesWithTheBlock(player)) this.velocity.y = 0
+      else this.mouthDirection = Math.PI * 1.5;
+    }  
   }
 
   move() {
@@ -117,6 +132,7 @@ class Player {
   }
 
   update() {
+    this.mouthOpn > 1 ? this.mouthOpn = 0 : this.mouthOpn += 0.1;
     this.draw();
     this.updateInputs();
     this.move();
@@ -232,7 +248,7 @@ const ghosts = new Array();
 const pellets = new Array();
 const powers = new Array();
 var player;
-var score, highScore, count;
+var score, highScore = 0, count;
 var lastKey = null, gatesOpened = false;
 
 function getPossibleDirections(obj) {
