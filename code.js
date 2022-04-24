@@ -26,8 +26,26 @@ class Block {
     );
   };
   update() {
+    this.draw();
   }
 };
+
+class Gate {
+  constructor(position) {
+    this.position = {
+      x: position.x, 
+      y: position.y
+    }
+    this.width = Block.width;
+    this.height = Block.height;
+    this.open = true;
+  }
+
+  update() {
+    console.log('foi')
+    if(this.open) this.width = 0;
+  }
+}
 
 class Player {
   constructor(position) {
@@ -73,6 +91,11 @@ class Player {
   }
 
   move() {
+    if(collidesWithTheBlock(this)) {
+      this.velocity.x = 0;
+      this.velocity.y = 0;
+    }
+
     this.position.x += this.velocity.x;
     this.position.y += this.velocity.y;
   }
@@ -173,7 +196,12 @@ class Ghost {
       this.velocity.x = newDirection.x;
       this.velocity.y = newDirection.y;
     }
-    else this.velocity.x *= -1, this.velocity.y *= -1;
+    else this.turnBack();
+  }
+
+  turnBack() {
+    this.velocity.x *= -1;
+    this.velocity.y *= -1;
   }
   
   update() {
@@ -238,7 +266,7 @@ function createMap() {
     ['|','.','{','}','.','{','_','}','.','|','.','{','_','}','.','{','}','.','|'], 
     ['|','.','[',']','.','[','_',']','.','v','.','[','_',']','.','[',']','.','|'], 
     ['|','.','.','.','.','.','.','.','.','.','.','.','.','.','.','.','.','.','|'], 
-    ['|','.','<','>','.','^','.','<','_','~','_','>','.','^','.','<','>','.','|'],
+    ['|','.','<','>','g','^','.','<','_','~','_','>','.','^','g','<','>','.','|'],
     ['|','.','.','.','.','|','.','.','.','|','.','.','.','|','.','.','.','.','|'],
     ['[','_','_','}','.','(','_','>',' ','v',' ','<','_',')','.','{','_','_',']'],
     [' ',' ',' ','|','.','|',' ',' ',' ',' ',' ',' ',' ','|','.','|',' ',' ',' '],
@@ -250,7 +278,7 @@ function createMap() {
     [' ',' ',' ','|','.','|',' ',' ',' ',' ',' ',' ',' ','|','.','|',' ',' ',' '], 
     ['{','_','_',']','.','v',' ','<','_','~','_','>',' ','v','.','[','_','_','}'], 
     ['|','.','.','.','.','.','.','.','.','|','.','.','.','.','.','.','.','.','|'], 
-    ['|','.','<','}','g','<','_','>','.','v','.','<','_','>','.','{','>','.','|'], 
+    ['|','.','<','}','g','<','_','>','.','v','.','<','_','>','g','{','>','.','|'], 
     ['|','.','.','|','.','.','.','.','.','.','.','.','.','.','.','|','.','.','|'], 
     ['|','>','.','v','.','^','.','<','_','~','_','>','.','^','.','v','.','<',')'], 
     ['|','.','.','.','.','|','.','.','.','|','.','.','.','|','.','.','.','.','|'], 
@@ -278,48 +306,6 @@ function createNewBlock(position, blockType) {
         y: Block.height * position.y
       },
       image = getImage(blockType)
-    )
-  );
-};
-
-function createNewPellet(position) {
-  pellets.push(
-    new Pellet(
-      position = {
-        x: Block.width * position.x + Block.width / 2,
-        y: Block.height * position.y + Block.height / 2
-      },
-    )
-  );
-};
-
-function createNewPower(position) {
-  powers.push(
-    new Power(
-      position = {
-        x: Block.width * position.x + Block.width / 2,
-        y: Block.height * position.y + Block.height / 2
-      },
-    )
-  );
-}
-
-function createNewPlayer(position) {
-  player = new Player(
-    position = {
-      x: Math.round(Block.width * position.x + Block.width / 2),
-      y: Math.round(Block.height * position.y + Block.height / 2)
-    }
-  );
-};
-
-function createNewGhost(position) {
-  ghosts.push(
-    new Ghost(
-      position = {
-        x: Math.round(Block.width * position.x + Block.width / 2),
-        y: Math.round(Block.height * position.y + Block.height / 2)
-      }
     )
   );
 };
@@ -388,7 +374,61 @@ function getImage(type) {
       image.src = './imgs/pipeConnectorTop.png';
       break;
   }
+
   return image;
+};
+
+function createNewGate(position) {
+  blocks.push(
+    new Gate(
+      position = {
+        x: Block.width * position.x,
+        y: Block.height * position.y
+      },
+    )
+  );
+}
+
+function createNewPellet(position) {
+  pellets.push(
+    new Pellet(
+      position = {
+        x: Block.width * position.x + Block.width / 2,
+        y: Block.height * position.y + Block.height / 2
+      },
+    )
+  );
+};
+
+function createNewPower(position) {
+  powers.push(
+    new Power(
+      position = {
+        x: Block.width * position.x + Block.width / 2,
+        y: Block.height * position.y + Block.height / 2
+      },
+    )
+  );
+};
+
+function createNewPlayer(position) {
+  player = new Player(
+    position = {
+      x: Math.round(Block.width * position.x + Block.width / 2),
+      y: Math.round(Block.height * position.y + Block.height / 2)
+    }
+  );
+};
+
+function createNewGhost(position) {
+  ghosts.push(
+    new Ghost(
+      position = {
+        x: Math.round(Block.width * position.x + Block.width / 2),
+        y: Math.round(Block.height * position.y + Block.height / 2)
+      }
+    )
+  );
 };
 
 function gameOver() {
@@ -414,9 +454,7 @@ function run() {
   scoreHTML.innerText = score;
 
   blocks.forEach((block) => {
-    block.draw();
-    if(player && collidesWithTheBlock(player))
-      player.velocity.x = 0, player.velocity.y = 0; 
+    block.update();
   });
 
   pellets.forEach((pellet, i) => {
@@ -434,6 +472,7 @@ function run() {
       
       ghosts.forEach((ghost)=> {
         ghost.scared = true;
+        ghost.turnBack();
         setTimeout(()=> ghost.scared = false, 3000);
       })
     }
