@@ -1,4 +1,4 @@
-const canvas = document.querySelector('canvas');
+    const canvas = document.querySelector('canvas');
 const c = canvas.getContext('2d');
 
 const scoreHTML = document.getElementById('score');
@@ -181,8 +181,8 @@ class Power {
 }
 
 class Ghost {
-  constructor(position) {
-    this.color = 'red'
+  constructor(position, color) {
+    this.color = color;
     this.position = {
       x: position.x,
       y: position.y
@@ -198,8 +198,10 @@ class Ghost {
   }
 
   draw() {
+    const actualColor = this.scared ? 'blue' : this.color;
+
     c.beginPath();
-    c.fillStyle = this.color;
+    c.fillStyle = actualColor;
     c.arc(
       this.position.x, this.position.y,
       this.radius, 0, Math.PI * 2
@@ -240,7 +242,6 @@ class Ghost {
   update() {
     this.draw();
     this.move();
-    this.color = this.scared ? 'blue' : 'red';
   }
 }
 
@@ -464,10 +465,19 @@ function createNewGhost(position) {
       position = {
         x: Math.round(Block.width * position.x + Block.width / 2),
         y: Math.round(Block.height * position.y + Block.height / 2)
-      }
+      },
+      color = createRandomRGB()
     )
   );
 };
+
+function createRandomRGB() {
+  return `RGB(
+    ${Math.round(Math.random() * 255)},
+    ${Math.round(Math.random() * 255)},
+    ${Math.round(Math.random() * 255)}
+  )`;
+}
 
 function openGates() {
   gatesOpened = true;
