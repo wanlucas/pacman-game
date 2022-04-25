@@ -198,10 +198,8 @@ class Ghost {
   }
 
   draw() {
-    const actualColor = this.scared ? 'blue' : this.color;
-
     c.beginPath();
-    c.fillStyle = actualColor;
+    c.fillStyle = this.color;
     c.arc(
       this.position.x, this.position.y,
       this.radius, 0, Math.PI * 2
@@ -242,6 +240,7 @@ class Ghost {
   update() {
     this.draw();
     this.move();
+    this.color = this.scared ? 'blue' : this.color;
   }
 }
 
@@ -250,7 +249,7 @@ const ghosts = new Array();
 const pellets = new Array();
 const powers = new Array();
 var player;
-var score, highScore = 0, count;
+var score, highScore = 0, count, actualLevel = 1;
 var lastKey = null, gatesOpened = false;
 
 function getPossibleDirections(obj) {
@@ -294,32 +293,7 @@ function collidesWithTheBlock(circle) {
 };
 
 function createMap() {
-  const map = [
-    ['{','_','_','_','_','_','_','_','_','~','_','_','_','_','_','_','_','_','}'],
-    ['|','p','.','.','.','.','.','.','.','|','.','.','.','.','.','.','.','.','|'], 
-    ['|','.','{','}','.','{','_','}','.','|','.','{','_','}','.','{','}','.','|'], 
-    ['|','.','[',']','.','[','_',']','.','v','.','[','_',']','.','[',']','.','|'], 
-    ['|','.','.','.','.','.','.','.','.','.','.','.','.','.','.','.','.','.','|'], 
-    ['|','.','<','>','.','^','.','<','_','~','_','>','.','^','.','<','>','.','|'],
-    ['|','.','.','.','.','|','.','.','.','|','.','.','.','|','.','.','.','.','|'],
-    ['[','_','_','}','.','(','_','>',' ','v',' ','<','_',')','.','{','_','_',']'],
-    [' ',' ',' ','|','.','|',' ',' ','g','g','g',' ',' ','|','.','|',' ',' ',' '],
-    [' ',' ',' ','|','.','|',' ','{','"','"','"','}',' ','|','.','|',' ',' ',' '], 
-    ['{','_','_',']','.','v',' ','|','g','g','g','|',' ','v','.','[','_','_','}'],
-    ['|','o',' ',' ','.',' ',' ','|','g','g','g','|',' ',' ','.',' ',' ','o','|'], 
-    ['[','_','_','}','.','^',' ','|','g','g','g','|',' ','^','.','{','_','_',']'], 
-    [' ',' ',' ','|','.','|',' ','[','_','_','_',']',' ','|','.','|',' ',' ',' '], 
-    [' ',' ',' ','|','.','|',' ',' ',' ',' ',' ',' ',' ','|','.','|',' ',' ',' '], 
-    ['{','_','_',']','.','v',' ','<','_','~','_','>',' ','v','.','[','_','_','}'], 
-    ['|','.','.','.','.','.','.','.','.','|','.','.','.','.','.','.','.','.','|'], 
-    ['|','.','<','}','.','<','_','>','.','v','.','<','_','>','.','{','>','.','|'], 
-    ['|','.','.','|','.','.','.','.','.','.','.','.','.','.','.','|','.','.','|'], 
-    ['|','>','.','v','.','^','.','<','_','~','_','>','.','^','.','v','.','<',')'], 
-    ['|','.','.','.','.','|','.','.','.','|','.','.','.','|','.','.','.','.','|'], 
-    ['|','.','<','_','_','u','_','>','.','v','.','<','_','u','_','_','>','.','|'], 
-    ['|','.','.','.','.','.','.','.','.','.','.','.','.','.','.','.','.','.','|'], 
-    ['[','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_',']']
-  ];
+  const map = maps[actualLevel - 1];
 
   map.forEach((row, y) => {
     row.forEach((type, x) => {
@@ -488,11 +462,6 @@ function gameOver() {
   if(score > highScore) highScore = score;
   highScoreHTML.innerText = highScore;
 
-  setTimeout(()=> {
-    ghosts.splice(0), pellets.splice(0);
-    player = null, lastKey = null;
-  },1000);
-
   setTimeout(()=> start() ,2000);
 };
 
@@ -501,7 +470,7 @@ function run() {
   c.clearRect(0,0,canvas.width, canvas.height);
 
   scoreHTML.innerText = score;
-
+  
   blocks.forEach((block) => {
     block.update();
   });
@@ -540,11 +509,27 @@ function run() {
   });
 
   player && player.update();
+
+  if(pellets.filter(e => e != '').length == 0) {
+    levelUp();
+    cancelAnimationFrame(animation);
+  }
 };
+
+function levelUp() {
+  actualLevel < maps.length ? actualLevel++ : alert('More levels are coming');
+  
+  setTimeout(()=> start() ,2000);
+}
 
 function start() {
   score = 0;
   count = 0;
+  player = null, lastKey = null;
+
+  ghosts.splice(0), pellets.splice(0);
+  blocks.splice(0), powers.splice(0);
+
   createMap();
   run(); 
 }
