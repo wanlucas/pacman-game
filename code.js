@@ -1,30 +1,32 @@
-    const canvas = document.querySelector('canvas');
+const canvas = document.querySelector('canvas');
 const c = canvas.getContext('2d');
 
 const scoreHTML = document.getElementById('score');
 const highScoreHTML = document.getElementById('high-score');
 
-const width = canvas.width = innerWidth;
-const height = canvas.height = innerHeight;
+canvas.height = canvas.width = innerWidth;
 
 class Block {
-  static width = 25;
-  static height = 25;
+  static width = 30;
+  static height = 30;
   constructor(position, image) {
     this.position = {
       x: position.x,
       y: position.y
     };
-    this.width = 25, this.height = 25;
+    this.width = Block.width
+    this.height = Block.height
     this.image = image
   }
+
   draw(){
     c.drawImage(
       this.image,
       this.position.x, this.position.y,
-      Block.width, Block.height
+      this.width, this.height
     );
   };
+
   update() {
     this.draw();
   }
@@ -51,6 +53,7 @@ class Gate {
       Block.width, Block.height
     );
   }
+
   update() {
     if(gatesOpened) {
       this.width = 0;
@@ -148,6 +151,7 @@ class Pellet {
     }
     this.radius = Block.width / 10
   }
+
   draw() {
     c.beginPath();
     c.fillStyle = 'orange';
@@ -168,6 +172,7 @@ class Power {
     }
     this.radius = Block.width / 4
   }
+
   draw() {
     c.beginPath();
     c.fillStyle = 'orange';
@@ -270,7 +275,7 @@ function getPossibleDirections(obj) {
 
     return !collidesWithTheBlock(thisObj);
   });
-}
+};
 
 function collidesWithTheCircle(target, circle) {
   const verDistance = target.position.x - circle.position.x;
@@ -282,6 +287,7 @@ function collidesWithTheCircle(target, circle) {
 
 function collidesWithTheBlock(circle) {
   const constantRadius = Block.width / 2 - 2 //to keep centralized
+
   return blocks.some(block => 
     circle.position.x + constantRadius + circle.velocity.x 
     >= block.position.x &&
@@ -428,8 +434,8 @@ function createNewPower(position) {
 function createNewPlayer(position) {
   player = new Player(
     position = {
-      x: Math.round(Block.width * position.x + Block.width / 2),
-      y: Math.round(Block.height * position.y + Block.height / 2)
+      x: Block.width * position.x + Block.width / 2,
+      y: Block.height * position.y + Block.height / 2
     }
   );
 };
@@ -438,8 +444,8 @@ function createNewGhost(position) {
   ghosts.push(
     new Ghost(
       position = {
-        x: Math.round(Block.width * position.x + Block.width / 2),
-        y: Math.round(Block.height * position.y + Block.height / 2)
+        x: Block.width * position.x + Block.width / 2,
+        y: Block.height * position.y + Block.height / 2
       },
       color = createRandomRGB()
     )
