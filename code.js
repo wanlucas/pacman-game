@@ -4,11 +4,9 @@ const c = canvas.getContext('2d');
 const scoreHTML = document.getElementById('score');
 const highScoreHTML = document.getElementById('high-score');
 
-canvas.height = canvas.width = innerWidth;
-
 class Block {
-  static width = 30;
-  static height = 30;
+  static width;
+  static height;
   constructor(position, image) {
     this.position = {
       x: position.x,
@@ -286,7 +284,7 @@ function collidesWithTheCircle(target, circle) {
 };
 
 function collidesWithTheBlock(circle) {
-  const constantRadius = Block.width / 2 - 2 //to keep centralized
+  const constantRadius = Block.width / 2 - 0.2//to keep centralized
 
   return blocks.some(block => 
     circle.position.x + constantRadius + circle.velocity.x 
@@ -301,6 +299,8 @@ function collidesWithTheBlock(circle) {
 
 function createMap() {
   const map = maps[actualLevel - 1];
+
+  Block.width = Block.height = canvas.width / map[0].length;
 
   map.forEach((row, y) => {
     row.forEach((type, x) => {
