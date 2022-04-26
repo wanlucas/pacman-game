@@ -448,9 +448,9 @@ function createNewGhost(position) {
 
 function createRandomRGB() {
   return `RGB(
-    ${Math.round(Math.random() * 255)},
-    ${Math.round(Math.random() * 255)},
-    ${Math.round(Math.random() * 255)}
+    ${Math.round((Math.random() * 200) + 55)},
+    ${Math.round((Math.random() * 200) + 55)},
+    ${Math.round((Math.random() * 200) + 55)}
   )`;
 }
 
