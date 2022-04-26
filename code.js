@@ -198,8 +198,10 @@ class Ghost {
   }
 
   draw() {
+    const actualColor = this.scared ? 'blue' : this.color;
+
     c.beginPath();
-    c.fillStyle = this.color;
+    c.fillStyle = actualColor;
     c.arc(
       this.position.x, this.position.y,
       this.radius, 0, Math.PI * 2
@@ -240,7 +242,6 @@ class Ghost {
   update() {
     this.draw();
     this.move();
-    this.color = this.scared ? 'blue' : this.color;
   }
 }
 
