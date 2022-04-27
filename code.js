@@ -253,7 +253,7 @@ const ghosts = new Array();
 const pellets = new Array();
 const powers = new Array();
 var player;
-var score, highScore = 0, count, actualLevel = 1;
+var score, highScore = 0, count, actualLevel = 3;
 var lastKey = null, gatesOpened = false;
 
 function getPossibleDirections(obj) {
