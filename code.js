@@ -3,6 +3,7 @@ const c = canvas.getContext('2d');
 
 const scoreHTML = document.getElementById('score');
 const highScoreHTML = document.getElementById('high-score');
+const levelHTML = document.getElementById('level');
 
 class Block {
   static width;
@@ -299,6 +300,7 @@ function collidesWithTheBlock(circle) {
 
 function createMap() {
   const map = maps[actualLevel - 1];
+  levelHTML.innerText = actualLevel;
 
   Block.width = Block.height = canvas.width / map[0].length;
 
