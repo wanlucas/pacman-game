@@ -139,6 +139,12 @@ class Player {
     this.move();
     if(this.velocity.x || this.velocity.y) 
       this.mouthOpn > 1 ? this.mouthOpn = 0 : this.mouthOpn += 0.1;
+
+    if(this.position.x >= canvas.width)
+      this.position.x = this.radius;
+
+    if(this.position.x <= 0)
+      this.position.x = canvas.width - this.radius;
   }
 }
 
@@ -249,13 +255,10 @@ class Ghost {
   }
 }
 
-const blocks = new Array();
-const ghosts = new Array();
-const pellets = new Array();
-const powers = new Array();
-var player;
-var score, highScore = 0, count, actualLevel = 1;
-var lastKey = null, gatesOpened = false;
+const blocks = new Array(), ghosts = new Array();
+const pellets = new Array(), powers = new Array();
+var player, score, highScore = 0, actualLevel = 1;
+var lastKey = null, gatesOpened = false, count;
 
 function getPossibleDirections(obj) {
   const vel = obj.velocity.max;
