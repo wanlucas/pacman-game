@@ -136,15 +136,10 @@ class Player {
   update() {
     this.draw();
     this.updateInputs();
+    outsideTheMapEvent(this);
     this.move();
     if(this.velocity.x || this.velocity.y) 
       this.mouthOpn > 1 ? this.mouthOpn = 0 : this.mouthOpn += 0.1;
-
-    if(this.position.x >= canvas.width)
-      this.position.x = this.radius;
-
-    if(this.position.x <= 0)
-      this.position.x = canvas.width - this.radius;
   }
 }
 
@@ -251,6 +246,7 @@ class Ghost {
   
   update() {
     this.draw();
+    outsideTheMapEvent(this);
     this.move();
   }
 }
@@ -300,6 +296,14 @@ function collidesWithTheBlock(circle) {
     circle.position.y - constantRadius + circle.velocity.y
     <= block.position.y + block.height);     
 };
+
+function outsideTheMapEvent(circle) {
+  if(circle.position.x >= canvas.width)
+    circle.position.x = circle.radius;
+
+  if(circle.position.x <= 0)
+    circle.position.x = canvas.width - circle.radius;
+}
 
 function createMap() {
   const map = maps[actualLevel - 1];
