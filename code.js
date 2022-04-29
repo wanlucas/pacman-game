@@ -6,10 +6,11 @@ const highScoreHTML = document.getElementById('high-score');
 const levelHTML = document.getElementById('level');
 
 const config = {
-  actualLevel: 1,
+  actualLevel: 3,
   powerDuration: 5,
   playerVelocity: 5,
   ghostsVelocity: 5,
+  gateFrequency: 5
 };
 
 class Block {
@@ -580,6 +581,6 @@ addEventListener('load', () => {
   setInterval(()=> {
     count < 60 ? count++ : count = 0;
     
-    if(count % 5 == 0) openGates();
+    if(count % config.gateFrequency == 0) openGates();
   },1000);
 });
