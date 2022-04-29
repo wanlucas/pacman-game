@@ -440,7 +440,7 @@ function createNewGate(position) {
       },
     )
   );
-}
+};
 
 function createNewPellet(position) {
   pellets.push(
@@ -452,18 +452,6 @@ function createNewPellet(position) {
     )
   );
 };
-
-function createNewPower(position) {
-  powers.push(
-    new Power(
-      position = {
-        x: Block.width * position.x + Block.width / 2,
-        y: Block.height * position.y + Block.height / 2
-      },
-    )
-  );
-};
-
 function createNewPlayer(position) {
   player = new Player(
     position = {
@@ -472,26 +460,37 @@ function createNewPlayer(position) {
     }
   );
 };
+  
+  function createNewGhost(position) {
+    ghosts.push(
+      new Ghost(
+        position = {
+          x: Block.width * position.x + Block.width / 2,
+          y: Block.height * position.y + Block.height / 2
+        },
+        color = createRandomRGB()
+      )
+    );
+  };
 
-function createNewGhost(position) {
-  ghosts.push(
-    new Ghost(
-      position = {
-        x: Block.width * position.x + Block.width / 2,
-        y: Block.height * position.y + Block.height / 2
-      },
-      color = createRandomRGB()
-    )
-  );
-};
-
+  function createNewPower(position) {
+    powers.push(
+      new Power(
+        position = {
+          x: Block.width * position.x + Block.width / 2,
+          y: Block.height * position.y + Block.height / 2
+        },
+      )
+    );
+  };
+      
 function createRandomRGB() {
   return `RGB(
     ${Math.round((Math.random() * 200) + 55)},
     ${Math.round((Math.random() * 200) + 55)},
     ${Math.round((Math.random() * 200) + 55)}
   )`;
-}
+};
 
 function openGates() {
   gatesOpened = true;
@@ -504,6 +503,24 @@ function gameOver() {
 
   setTimeout(()=> start() ,2000);
 };
+
+function levelUp() {
+  config.actualLevel < maps.length ? config.actualLevel++ : alert('More levels are coming');
+  
+  setTimeout(()=> start() ,2000);
+}
+
+function start() {
+  score = 0;
+  count = 0;
+  player = null, lastKey = null;
+
+  ghosts.splice(0), pellets.splice(0);
+  blocks.splice(0), powers.splice(0);
+
+  createMap();
+  run(); 
+}
 
 function run() {
   let animation = requestAnimationFrame(run);
@@ -555,24 +572,6 @@ function run() {
     cancelAnimationFrame(animation);
   }
 };
-
-function levelUp() {
-  config.actualLevel < maps.length ? config.actualLevel++ : alert('More levels are coming');
-  
-  setTimeout(()=> start() ,2000);
-}
-
-function start() {
-  score = 0;
-  count = 0;
-  player = null, lastKey = null;
-
-  ghosts.splice(0), pellets.splice(0);
-  blocks.splice(0), powers.splice(0);
-
-  createMap();
-  run(); 
-}
 
 addEventListener('load', () => {
   start();
