@@ -453,6 +453,7 @@ function createNewPellet(position) {
     )
   );
 };
+
 function createNewPlayer(position) {
   player = new Player(
     position = {
@@ -462,28 +463,27 @@ function createNewPlayer(position) {
   );
 };
   
-  function createNewGhost(position) {
-    ghosts.push(
-      new Ghost(
-        position = {
-          x: Block.width * position.x + Block.width / 2,
-          y: Block.height * position.y + Block.height / 2
-        },
-        color = createRandomRGB()
-      )
-    );
-  };
+function createNewGhost(position) {
+  ghosts.push(
+    new Ghost(
+      position = {
+         x: Block.width * position.x + Block.width / 2,
+        y: Block.height * position.y + Block.height / 2
+      },
+      color = createRandomRGB()
+    )
+  );};
 
-  function createNewPower(position) {
-    powers.push(
-      new Power(
-        position = {
-          x: Block.width * position.x + Block.width / 2,
-          y: Block.height * position.y + Block.height / 2
-        },
-      )
-    );
-  };
+function createNewPower(position) {
+  powers.push(
+    new Power(
+      position = {
+        x: Block.width * position.x + Block.width / 2,
+        y: Block.height * position.y + Block.height / 2
+      },
+    )
+  );
+};
       
 function createRandomRGB() {
   return `RGB(
