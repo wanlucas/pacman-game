@@ -6,7 +6,7 @@ const highScoreHTML = document.getElementById('high-score');
 const levelHTML = document.getElementById('level');
 
 const config = {
-  actualLevel: 3,
+  actualLevel: 1,
   powerDuration: 5,
   playerVelocity: 5,
   ghostsVelocity: 5,
@@ -324,10 +324,10 @@ function collidesWithTheBlock(circle) {
 
 function outsideTheMapEvent(circle) {
   if(circle.position.x >= canvas.width)
-    circle.position.x = circle.radius;
+    circle.position.x = Block.width / 2;
 
   if(circle.position.x <= 0)
-    circle.position.x = canvas.width - circle.radius;
+    circle.position.x = canvas.width - Block.width / 2
 }
 
 function createMap() {
@@ -472,7 +472,8 @@ function createNewGhost(position) {
       },
       color = createRandomRGB()
     )
-  );};
+  );
+};
 
 function createNewPower(position) {
   powers.push(
