@@ -13,9 +13,9 @@ class Block {
       x: position.x,
       y: position.y
     };
-    this.width = Block.width
-    this.height = Block.height
-    this.image = image
+    this.width = Block.width;
+    this.height = Block.height;
+    this.image = image;
   }
 
   draw(){
@@ -36,11 +36,11 @@ class Gate {
     this.position = {
       x: position.x, 
       y: position.y
-    }
+    };
     this.images = {
       closed: getImage('_'),
       opened: getImage('"')
-    }
+    };
     this.width = 0;
     this.height = Block.height;
   }
@@ -63,7 +63,7 @@ class Gate {
       this.draw(this.images.closed);
     }
   }
-}
+};
 
 class Player {
   constructor(position) {
@@ -211,6 +211,22 @@ class Ghost {
       this.position.x, this.position.y,
       this.radius, 0, Math.PI * 2
     );
+    c.fill();
+    c.closePath();
+
+    c.beginPath();
+    c.fillStyle = 'black';
+    c.arc(
+      this.position.x - this.radius / 2,
+      this.position.y - this.radius / 3,
+      this.radius / 6, 0, Math.PI * 2
+    )
+
+    c.arc(
+      this.position.x + this.radius / 2,
+      this.position.y - this.radius / 3,
+      this.radius / 6, 0, Math.PI * 2
+    )
     c.fill();
     c.closePath();
   }
