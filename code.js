@@ -5,6 +5,13 @@ const scoreHTML = document.getElementById('score');
 const highScoreHTML = document.getElementById('high-score');
 const levelHTML = document.getElementById('level');
 
+const config = {
+  actualLevel: 1,
+  powerDuration: 5,
+  playerVelocity: 5,
+  ghostsVelocity: 5,
+};
+
 class Block {
   static width;
   static height;
@@ -74,7 +81,7 @@ class Player {
     this.velocity = {
       x:0,
       y:0,
-      max: Block.width / 10
+      max: Block.width / (20 - config.playerVelocity)
     }
     this.radius = (Block.width / 2) - 2;
     this.mouthOpn = 0.2;
@@ -195,7 +202,7 @@ class Ghost {
     this.velocity = {
       x: 3,
       y: 0,
-      max: Block.width / 10
+      max: Block.width / (20 - config.ghostsVelocity)
     }
     this.radius = Block.width / 2 - 4
     this.scared = false;
@@ -269,7 +276,8 @@ class Ghost {
 
 const blocks = new Array(), ghosts = new Array();
 const pellets = new Array(), powers = new Array();
-var player, score, highScore = 0, actualLevel = 1;
+
+var player, score, highScore = 0;
 var lastKey = null, gatesOpened = false, count;
 
 function getPossibleDirections(obj) {
@@ -322,8 +330,8 @@ function outsideTheMapEvent(circle) {
 }
 
 function createMap() {
-  const map = maps[actualLevel - 1];
-  levelHTML.innerText = actualLevel;
+  const map = maps[config.actualLevel - 1];
+  levelHTML.innerText = config.actualLevel;
 
   Block.width = Block.height = canvas.width / map[0].length;
 
@@ -523,7 +531,7 @@ function run() {
       ghosts.forEach((ghost)=> {
         ghost.scared = true;
         ghost.turnBack();
-        setTimeout(()=> ghost.scared = false, 3000);
+        setTimeout(()=> ghost.scared = false, config.powerDuration * 1000);
       })
     }
   });
@@ -549,7 +557,7 @@ function run() {
 };
 
 function levelUp() {
-  actualLevel < maps.length ? actualLevel++ : alert('More levels are coming');
+  config.actualLevel < maps.length ? config.actualLevel++ : alert('More levels are coming');
   
   setTimeout(()=> start() ,2000);
 }
