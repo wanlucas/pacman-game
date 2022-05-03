@@ -578,11 +578,20 @@ function run() {
 
 addEventListener('load', () => {
   start();
+
+  addEventListener('pointermove', ({ movementX, movementY }) => {
+    if(Math.abs(movementX) > Math.abs(movementY)) 
+      lastKey = movementX > 0 ? 'd' : 'a';
+    else
+      lastKey = movementY > 0 ? 's' : 'w';
+  });
+
   addEventListener('keypress', ({ key }) => lastKey = key);
-  alert('this game is in development');
+
   setInterval(()=> {
     count < 60 ? count++ : count = 0;
     
     if(count % config.gateFrequency == 0) openGates();
   },1000);
+  alert('this game is in development');
 });
