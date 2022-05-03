@@ -215,9 +215,10 @@ class Ghost {
 
     c.beginPath();
     c.fillStyle = actualColor;
+    c.lineTo(this.position.x, this.position.y);
     c.arc(
-      this.position.x, this.position.y,
-      this.radius, 0, Math.PI * 2
+      this.position.x, this.position.y - 1,
+      this.radius, Math.PI * 0.7, Math.PI * 2.3
     );
     c.fill();
     c.closePath();
@@ -288,7 +289,7 @@ function getPossibleDirections(obj) {
   return directions.filter((direction) => {
     const thisObj = {
       ...obj,
-      velocity : { 
+     velocity : { 
         x: direction.x,
         y: direction.y
       }};
@@ -299,7 +300,7 @@ function getPossibleDirections(obj) {
     return !collidesWithTheBlock(thisObj);
   });
 };
-
+ 
 function collidesWithTheCircle(target, circle) {
   const verDistance = target.position.x - circle.position.x;
   const horDistance = target.position.y - circle.position.y;
@@ -378,7 +379,7 @@ function getImage(type) {
 
     case '{':
       image.src = './imgs/pipeCorner1.png';
-      break;
+      break;﻿
 
     case '}':
       image.src = './imgs/pipeCorner2.png';
