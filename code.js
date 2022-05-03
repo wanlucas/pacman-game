@@ -579,13 +579,6 @@ function run() {
 addEventListener('load', () => {
   start();
 
-  addEventListener('pointermove', ({ movementX, movementY }) => {
-    if(Math.abs(movementX) > Math.abs(movementY)) 
-      lastKey = movementX > 0 ? 'd' : 'a';
-    else
-      lastKey = movementY > 0 ? 's' : 'w';
-  });
-
   addEventListener('keypress', ({ key }) => lastKey = key);
 
   setInterval(()=> {
